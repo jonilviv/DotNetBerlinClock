@@ -1,28 +1,43 @@
-﻿using System;
-using TechTalk.SpecFlow;
+﻿using BerlinClock.Classes;
+using BoDi;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
+using TechTalk.SpecFlow;
 
-namespace BerlinClock
+namespace BerlinClock.BDD
 {
     [Binding]
     public class TheBerlinClockSteps
     {
-        private ITimeConverter berlinClock = new TimeConverter();
-        private String theTime;
+        private string _theTime;
 
-        
+        private readonly IObjectContainer objectContainer;
+
+        public TheBerlinClockSteps(IObjectContainer objectContainer)
+        {
+            this.objectContainer = objectContainer;
+        }
+
+        [BeforeScenario]
+        public void InitializeWebDriver()
+        {
+            var timeConverter = new TimeConverter();
+            objectContainer.RegisterInstanceAs<ITimeConverter>(timeConverter);
+        }
+
         [When(@"the time is ""(.*)""")]
         public void WhenTheTimeIs(string time)
         {
-            theTime = time;
+            _theTime = time;
         }
-        
+
         [Then(@"the clock should look like")]
         public void ThenTheClockShouldLookLike(string theExpectedBerlinClockOutput)
         {
-            Assert.AreEqual(berlinClock.convertTime(theTime), theExpectedBerlinClockOutput);
-        }
+            ITimeConverter berlinClock = objectContainer.Resolve<ITimeConverter>();
 
+            string convertedTime = berlinClock.ConvertTime(_theTime);
+
+            Assert.AreEqual(theExpectedBerlinClockOutput, convertedTime);
+        }
     }
 }

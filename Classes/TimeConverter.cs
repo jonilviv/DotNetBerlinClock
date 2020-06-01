@@ -1,43 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Diagnostics.CodeAnalysis;
 
-namespace BerlinClock
+namespace BerlinClock.Classes
 {
     public class TimeConverter : ITimeConverter
     {
-        public string convertTime(string aTime)
+        private readonly IString24HToBerlinClockConverter _string24HToBerlinClockConverter;
+
+        public TimeConverter()
         {
-            switch (aTime)
-            {
-                case "00:00:00":
-                    return @"Y
-OOOO
-OOOO
-OOOOOOOOOOO
-OOOO";
-                case "13:17:01":
-                    return @"O
-RROO
-RRRO
-YYROOOOOOOO
-YYOO";
-                case "23:59:59":
-                    return @"O
-RRRR
-RRRO
-YYRYYRYYRYY
-YYYY";
-                case "24:00:00":
-                    return @"Y
-RRRR
-RRRR
-OOOOOOOOOOO
-OOOO";
-                default:
-                    return null;
-            }
+            _string24HToBerlinClockConverter = new String24HToBerlinClockConverter();
+        }
+
+        [ExcludeFromCodeCoverage]
+        public TimeConverter(IString24HToBerlinClockConverter string24HToBerlinClockConverter)
+        {
+            _string24HToBerlinClockConverter = string24HToBerlinClockConverter;
+        }
+
+        public string ConvertTime(string aTime)
+        {
+            BerlinClock berlinClock = _string24HToBerlinClockConverter.Convert(aTime);
+
+            string time = berlinClock.ToString();
+
+            return time;
         }
     }
 }
